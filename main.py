@@ -25,11 +25,20 @@ class AnimeDatabase:
         ''')
         self.connection.commit()
 
-    def insert_row(self, name, sport, finished_airing, rating, seen):
+    def insert_row(self, name, sport, finished_airing, rating):
+        seen = 0
         self.cursor.execute('''
             INSERT INTO anime (name, sport, finished_airing, rating, seen)
             VALUES (?, ?, ?, ?, ?)
         ''', (name, sport.lower(), finished_airing, rating, seen))
+        self.connection.commit()
+
+    def delete_row(self, anime_id):
+        self.cursor.execute('DELETE FROM anime WHERE id = ?', (anime_id,))
+        self.connection.commit()
+
+    def mark_as_seen(self, anime_id):
+        self.cursor.execute('UPDATE anime SET seen = 1 WHERE id = ?', (anime_id,))
         self.connection.commit()
 
     def select_all(self):
@@ -67,14 +76,6 @@ class AnimeDatabase:
             table.add_row(random_anime)
             print(table.draw())
 
-    def mark_as_seen(self, anime_id):
-        self.cursor.execute('UPDATE anime SET seen = 1 WHERE id = ?', (anime_id,))
-        self.connection.commit()
-
-    def delete_row(self, anime_id):
-        self.cursor.execute('DELETE FROM anime WHERE id = ?', (anime_id,))
-        self.connection.commit()
-
     def disconnect(self):
         self.connection.close()
 
@@ -97,18 +98,17 @@ def main():
         choice = input(">>> Enter your choice: ")
 
         if choice == "1":
-            name = input(">>>Enter name: ")
-            sport = input(">>>Enter type of sport: ")
-            finished_airing = input(">>>Is the anime finished? (y/n): ")
+            name = input("Enter name: ")
+            sport = input("Enter type of sport: ")
+            finished_airing = input("Is the anime finished? (y/n): ")
             if finished_airing.lower() == "y":
                 finished_airing = 1
             else:
                 finished_airing = 0
-            rating = float(input(">>>Enter rating: "))
-            seen = 0
-            anime_db.insert_row(name, sport, finished_airing, rating, seen)
+            rating = float(input("Enter rating: "))
+            anime_db.insert_row(name, sport, finished_airing, rating)
             print("\n")
-            
+
         elif choice == "2":
             print("\n")
             anime_db.select_all()
